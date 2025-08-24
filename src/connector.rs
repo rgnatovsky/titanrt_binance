@@ -1,3 +1,4 @@
+use crate::BINANCE_VENUE;
 use serde::{Deserialize, Serialize};
 use std::fmt::Display;
 use std::sync::Arc;
@@ -42,7 +43,7 @@ impl BaseConnector for BinanceConnector {
     }
 
     fn name(&self) -> impl AsRef<str> + Display {
-        "binance"
+        BINANCE_VENUE
     }
 
     fn config(&self) -> &Self::Config {
