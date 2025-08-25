@@ -3,6 +3,7 @@ use crate::futures::ws_api::descriptor::BinanceFutWsApiStream;
 use anyhow::{anyhow, Context};
 use rustls::pki_types::ServerName;
 use rustls::{ClientConfig, ClientConnection, RootCertStore, StreamOwned};
+use serde::Deserialize;
 use std::time::Instant;
 use std::{
     net::{TcpStream, ToSocketAddrs},
@@ -10,7 +11,9 @@ use std::{
     time::Duration,
 };
 use titanrt::connector::errors::{StreamError, StreamResult};
-use titanrt::connector::{Hook, HookArgs, IntoHook, RuntimeCtx, StreamRunner, StreamSpawner};
+use titanrt::connector::{
+    BaseConnector, Hook, HookArgs, IntoHook, RuntimeCtx, StreamRunner, StreamSpawner,
+};
 use titanrt::io::ringbuffer::RingSender;
 use titanrt::prelude::{BaseRx, TxPairExt};
 use titanrt::utils::backoff::Backoff;
@@ -18,14 +21,16 @@ use titanrt::utils::StateMarker;
 use tungstenite::handshake::client::Response;
 use tungstenite::protocol::{WebSocket, WebSocketConfig};
 use tungstenite::{Message, Utf8Bytes};
+use uuid::Uuid;
 
 pub const HOST: &str = "ws-fapi.binance.com";
 pub const ADDR: &str = "ws-fapi.binance.com:443";
 pub const CONNECT_URL: &str = "wss://ws-fapi.binance.com:443/ws-fapi/v1";
-// TODO optional config for const
+
+
 #[derive(Debug, Clone)]
 pub struct BinanceFutWsApiAction {
-    pub id: String,
+    pub id: Uuid,
     pub method: String,
     pub params: Vec<String>,
 }
@@ -66,6 +71,7 @@ where
     where
         H: IntoHook<BinanceFutWsApiEvent, E, S, BinanceFutWsApiStream, Self::HookResult>,
     {
+
         let mut hook = hook.into_hook();
 
         let mut backoff = Backoff::new(ctx.desc.reconnect_cfg.clone());
