@@ -1,9 +1,10 @@
-use crate::BINANCE_VENUE;
 use serde::{Deserialize, Serialize};
 use std::fmt::Display;
 use std::sync::Arc;
 use titanrt::connector::BaseConnector;
 use titanrt::utils::{CancelToken, CoreStats};
+
+pub const CONNECTOR_NAME: &str = "binance";
 
 #[derive(Clone, Deserialize, Serialize)]
 pub struct BinanceConnectorConfig {
@@ -18,10 +19,10 @@ pub struct BinanceConnector {
 }
 
 impl BaseConnector for BinanceConnector {
-    type Config = BinanceConnectorConfig;
+    type MainConfig = BinanceConnectorConfig;
 
     fn init(
-        config: Self::Config,
+        config: Self::MainConfig,
         cancel_token: CancelToken,
         reserved_core_ids: Option<Vec<usize>>,
     ) -> anyhow::Result<Self> {
@@ -43,10 +44,10 @@ impl BaseConnector for BinanceConnector {
     }
 
     fn name(&self) -> impl AsRef<str> + Display {
-        BINANCE_VENUE
+        CONNECTOR_NAME
     }
 
-    fn config(&self) -> &Self::Config {
+    fn config(&self) -> &Self::MainConfig {
         &self.config
     }
 
